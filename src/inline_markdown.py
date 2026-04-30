@@ -3,6 +3,18 @@ import re
 from src.textnode import TextNode, TextType
 
 
+def text_to_textnodes(text):
+    initial_text = [TextNode(text, TextType.TEXT)]
+
+    output1 = split_nodes_delimiter(initial_text, "**", TextType.BOLD)
+    output2 = split_nodes_delimiter(output1, "`", TextType.CODE)
+    output3 = split_nodes_delimiter(output2, "_", TextType.ITALIC)
+    output4 = split_nodes_image(output3)
+    output5 = split_nodes_link(output4)
+
+    return output5
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
 
