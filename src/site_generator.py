@@ -1,6 +1,46 @@
 import os
 import shutil
 
+from markdown_blocks import markdown_to_html_node
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    f_md = open(from_path, "r")
+    markdown = f_md.read()
+    f_md.close()
+
+    f_tmpl = open(template_path, "r")
+    template = f_tmpl.read()
+    f_tmpl.close()
+
+    title = extract_title(markdown)
+    node = markdown_to_html_node(markdown)
+    content = node.to_html()
+
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", content)
+
+    if not os.path.exists(os.path.dirname(dest_path)):
+        os.makedirs(os.path.dirname(dest_path))
+
+    with open(dest_path, "w") as f:
+        f.write(template)
+
+
+def extract_title(markdown):
+    title = ""
+
+    lines = markdown.split("\n")
+
+    for line in lines:
+        if line.startswith("# "):
+            title = line[2:]
+            title = title.strip()
+            return title
+
+    raise Exception("no title found")
+
 
 def clean_up_folder(current_path):
     if os.path.exists(current_path):
