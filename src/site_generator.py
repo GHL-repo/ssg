@@ -1,7 +1,26 @@
 import os
 import shutil
+from pathlib import Path
 
 from markdown_blocks import markdown_to_html_node
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    current_path = Path(dir_path_content)
+    dest_dir_path = Path(dest_dir_path)
+
+    for entry in current_path.iterdir():
+        # print("we are here: ", entry)
+        if entry.is_file() and entry.suffix.lower() == ".md":
+            new_path = dest_dir_path / entry.relative_to(dir_path_content).with_suffix(
+                ".html"
+            )
+            print(f"Moving {entry} -> {new_path}")
+            generate_page(entry, template_path, new_path)
+        elif entry.is_dir():
+            print("entering: ", entry)
+            new_dest = dest_dir_path / entry.name
+            generate_pages_recursive(entry, template_path, new_dest)
 
 
 def generate_page(from_path, template_path, dest_path):
@@ -14,9 +33,9 @@ def generate_page(from_path, template_path, dest_path):
     template = f_tmpl.read()
     f_tmpl.close()
 
-    title = extract_title(markdown)
     node = markdown_to_html_node(markdown)
     content = node.to_html()
+    title = extract_title(markdown)
 
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", content)
@@ -39,7 +58,7 @@ def extract_title(markdown):
             title = title.strip()
             return title
 
-    raise Exception("no title found")
+    raise ValueError("no title found")
 
 
 def clean_up_folder(current_path):
