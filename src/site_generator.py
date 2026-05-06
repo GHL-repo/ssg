@@ -10,15 +10,12 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
     dest_dir_path = Path(dest_dir_path)
 
     for entry in current_path.iterdir():
-        # print("we are here: ", entry)
         if entry.is_file() and entry.suffix.lower() == ".md":
             new_path = dest_dir_path / entry.relative_to(dir_path_content).with_suffix(
                 ".html"
             )
-            print(f"Moving {entry} -> {new_path}")
             generate_page(entry, template_path, new_path)
         elif entry.is_dir():
-            print("entering: ", entry)
             new_dest = dest_dir_path / entry.name
             generate_pages_recursive(entry, template_path, new_dest)
 
